@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id           Int      @id @default(autoincrement())
+  name         String
+  brand        String?
+  paymentTerms String?
+  quotes       Quote[]
+  createdAt    DateTime @default(now())
+}
+
+model Sender {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  title     String
+  quotes    Quote[]
+  createdAt DateTime @default(now())
+}
+
+model Quote {
+  id               Int      @id @default(autoincrement())
+  quoteNumber      String   @unique
+  recipientName    String
+  recipientLast    String
+  recipientCompany String
+  date             DateTime @default(now())
+  title            String
+  subject          String
+  clientId         Int
+  client           Client   @relation(fields: [clientId], references: [id])
+  senderId         Int
+  sender           Sender   @relation(fields: [senderId], references: [id])
+  items            Json     // [{description, quantity, unitPrice, total}]
+  totalAmount      Float
+  notes            String?
+  paymentTerms     String
+  senderSignature  String?  // base64
+  clientSignature  String?  // base64
+  createdAt        DateTime @default(now())
+}
