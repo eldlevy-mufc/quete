@@ -5,29 +5,18 @@ import { requireAuth, requireAdmin } from "@/lib/auth-check";
 export async function GET() {
   const { error } = await requireAuth();
   if (error) return error;
-  const senders = await prisma.sender.findMany({ orderBy: { fullName: "asc" } });
-  return NextResponse.json(senders);
+  const brands = await prisma.brand.findMany({ orderBy: { name: "asc" } });
+  return NextResponse.json(brands);
 }
 
 export async function POST(req: Request) {
   const { error } = await requireAdmin();
   if (error) return error;
   const data = await req.json();
-  const sender = await prisma.sender.create({
-    data: { fullName: data.fullName, title: data.title },
+  const brand = await prisma.brand.create({
+    data: { name: data.name.trim() },
   });
-  return NextResponse.json(sender);
-}
-
-export async function PUT(req: Request) {
-  const { error } = await requireAdmin();
-  if (error) return error;
-  const data = await req.json();
-  const sender = await prisma.sender.update({
-    where: { id: data.id },
-    data: { fullName: data.fullName, title: data.title },
-  });
-  return NextResponse.json(sender);
+  return NextResponse.json(brand);
 }
 
 export async function DELETE(req: Request) {
@@ -35,6 +24,6 @@ export async function DELETE(req: Request) {
   if (error) return error;
   const { searchParams } = new URL(req.url);
   const id = parseInt(searchParams.get("id") || "0");
-  await prisma.sender.delete({ where: { id } });
+  await prisma.brand.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

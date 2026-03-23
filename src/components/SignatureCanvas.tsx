@@ -25,11 +25,33 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, Props>(({ label, onEnd },
 
   return (
     <div>
-      <label>{label}</label>
-      <div className="border-2 border-dashed border-gray-300 rounded-lg bg-white mt-1">
+      {label && (
+        <label style={{
+          fontSize: "0.78rem",
+          fontWeight: 600,
+          color: "var(--muted)",
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
+          display: "block",
+          marginBottom: "6px",
+        }}>
+          {label}
+        </label>
+      )}
+      <div style={{
+        border: "2px dashed rgba(15,23,42,.12)",
+        borderRadius: "var(--radius-sm)",
+        background: "#fff",
+        marginTop: label ? "0" : "4px",
+        transition: "border-color 0.2s",
+        overflow: "hidden",
+      }}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(26,188,156,.3)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(15,23,42,.12)"; }}
+      >
         <ReactSignatureCanvas
           ref={sigRef}
-          penColor="black"
+          penColor="#0B1C2D"
           canvasProps={{
             className: "w-full",
             style: { width: "100%", height: 150 },
@@ -44,7 +66,17 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, Props>(({ label, onEnd },
       <button
         type="button"
         onClick={() => sigRef.current?.clear()}
-        className="text-xs text-gray-500 hover:text-gray-700 mt-1"
+        className="text-xs mt-1.5"
+        style={{
+          color: "var(--muted)",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: "2px 0",
+          transition: "color 0.15s",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "#1ABC9C"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = "var(--muted)"; }}
       >
         נקה חתימה
       </button>

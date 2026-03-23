@@ -13,6 +13,7 @@ export interface QuoteFormData {
   subject: string;
   clientId: number;
   senderId: number;
+  contactId?: number;
   items: QuoteItem[];
   totalAmount: number;
   notes: string;
@@ -20,11 +21,26 @@ export interface QuoteFormData {
   senderSignature: string;
 }
 
+export interface ContactData {
+  id?: number;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  clientId?: number;
+}
+
+export interface BrandData {
+  id?: number;
+  name: string;
+}
+
 export interface ClientData {
   id?: number;
   name: string;
   brand: string;
   paymentTerms: string;
+  contacts?: ContactData[];
 }
 
 export interface SenderData {

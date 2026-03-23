@@ -1,15 +1,20 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth-check";
 
 export async function GET() {
+  const { error } = await requireAuth();
+  if (error) return error;
   const quotes = await prisma.quote.findMany({
-    include: { client: true, sender: true },
+    include: { client: true, sender: true, contact: true },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json(quotes);
 }
 
 export async function POST(req: Request) {
+  const { error } = await requireAuth();
+  if (error) return error;
   const data = await req.json();
 
   // Generate quote number: QT-YYYYMMDD-XXX
@@ -34,13 +39,14 @@ export async function POST(req: Request) {
       subject: data.subject,
       clientId: data.clientId,
       senderId: data.senderId,
+      contactId: data.contactId || null,
       items: data.items,
       totalAmount: data.totalAmount,
       notes: data.notes || null,
       paymentTerms: data.paymentTerms,
       senderSignature: data.senderSignature || null,
     },
-    include: { client: true, sender: true },
+    include: { client: true, sender: true, contact: true },
   });
   return NextResponse.json(quote);
 }

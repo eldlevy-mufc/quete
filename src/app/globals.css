@@ -1,29 +1,163 @@
 @import "tailwindcss";
 
-body {
-  background: #f9fafb;
-  color: #111827;
-  font-family: Arial, Helvetica, sans-serif;
+@theme {
+  --color-navy: #0B1C2D;
+  --color-navy2: #0B3C5D;
+  --color-teal: #1ABC9C;
+  --color-teal-hover: #17a589;
+  --color-muted: #64748B;
+  --color-warm: #F59E0B;
+  --color-coral: #E8725C;
 }
 
+:root {
+  --navy: #0B1C2D;
+  --navy2: #0B3C5D;
+  --teal: #1ABC9C;
+  --teal-hover: #17a589;
+  --bg: #F4F6F9;
+  --bg-warm: #F9F8F6;
+  --text: #0F172A;
+  --muted: #64748B;
+  --card: #FFFFFF;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.15);
+  --shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 30px rgba(0,0,0,.06);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.03), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,.04), 0 24px 60px rgba(0,0,0,.1);
+  --shadow-glow: 0 0 0 1px rgba(26,188,156,.15), 0 4px 20px rgba(26,188,156,.12);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 7px;
+}
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ─── Base ─── */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-heebo), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0.01em;
+}
+
+/* Subtle dot pattern on dashboard background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,0.03) 1px, transparent 0);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-rubik), var(--font-heebo), system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Inputs ─── */
 input, select, textarea {
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  background: var(--card);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  padding: 0.55rem 0.8rem;
   font-size: 0.875rem;
   width: 100%;
+  color: var(--text);
+  font-family: var(--font-heebo), system-ui, sans-serif;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input:hover, select:hover, textarea:hover {
+  border-color: rgba(15, 23, 42, 0.25);
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  border-color: var(--teal);
+  box-shadow: var(--shadow-glow);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+input:disabled, select:disabled, textarea:disabled {
+  background: var(--bg);
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+select option {
+  background: var(--card);
+  color: var(--text);
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.22);
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: rgba(26, 188, 156, 0.2);
+  color: var(--navy);
+}
+
+/* ─── Print ─── */
+@media print {
+  body {
+    background: white !important;
+  }
+  body::before {
+    display: none;
+  }
 }

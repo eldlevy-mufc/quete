@@ -7,13 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  fullName  String
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+}
+
+model Brand {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
 model Client {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   name         String
   brand        String?
   paymentTerms String?
+  contacts     Contact[]
   quotes       Quote[]
-  createdAt    DateTime @default(now())
+  createdAt    DateTime  @default(now())
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String?
+  phone     String?
+  role      String?
+  clientId  Int
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  quotes    Quote[]
+  createdAt DateTime @default(now())
 }
 
 model Sender {
@@ -25,23 +53,26 @@ model Sender {
 }
 
 model Quote {
-  id               Int      @id @default(autoincrement())
-  quoteNumber      String   @unique
+  id               Int       @id @default(autoincrement())
+  quoteNumber      String    @unique
   recipientName    String
   recipientLast    String
   recipientCompany String
-  date             DateTime @default(now())
+  date             DateTime  @default(now())
   title            String
   subject          String
   clientId         Int
-  client           Client   @relation(fields: [clientId], references: [id])
+  client           Client    @relation(fields: [clientId], references: [id])
   senderId         Int
-  sender           Sender   @relation(fields: [senderId], references: [id])
-  items            Json     // [{description, quantity, unitPrice, total}]
+  sender           Sender    @relation(fields: [senderId], references: [id])
+  contactId        Int?
+  contact          Contact?  @relation(fields: [contactId], references: [id])
+  items            Json      // [{description, quantity, unitPrice, total}]
   totalAmount      Float
   notes            String?
   paymentTerms     String
-  senderSignature  String?  // base64
-  clientSignature  String?  // base64
-  createdAt        DateTime @default(now())
+  senderSignature  String?   // base64
+  clientSignature  String?   // base64
+  emailSentAt      DateTime?
+  createdAt        DateTime  @default(now())
 }

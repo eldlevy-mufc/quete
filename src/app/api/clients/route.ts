@@ -1,12 +1,20 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireAuth, requireAdmin } from "@/lib/auth-check";
 
 export async function GET() {
-  const clients = await prisma.client.findMany({ orderBy: { name: "asc" } });
+  const { error } = await requireAuth();
+  if (error) return error;
+  const clients = await prisma.client.findMany({
+    include: { contacts: true },
+    orderBy: { name: "asc" },
+  });
   return NextResponse.json(clients);
 }
 
 export async function POST(req: Request) {
+  const { error } = await requireAdmin();
+  if (error) return error;
   const data = await req.json();
   const client = await prisma.client.create({
     data: {
@@ -19,6 +27,8 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
+  const { error } = await requireAdmin();
+  if (error) return error;
   const data = await req.json();
   const client = await prisma.client.update({
     where: { id: data.id },
@@ -32,6 +42,8 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const { error } = await requireAdmin();
+  if (error) return error;
   const { searchParams } = new URL(req.url);
   const id = parseInt(searchParams.get("id") || "0");
   await prisma.client.delete({ where: { id } });
