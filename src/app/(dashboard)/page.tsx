@@ -190,6 +190,12 @@ export default function HomePage() {
     }
   };
 
+  const escHtml = (s: string | null | undefined): string => {
+    if (!s) return "";
+    const map: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+    return s.replace(/[&<>"']/g, (m) => map[m]);
+  };
+
   const generatePDF = useCallback(async () => {
     if (!savedQuoteId) {
       showToast("יש לשמור את ההצעה לפני הורדת PDF", "error");
@@ -214,7 +220,7 @@ export default function HomePage() {
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>הצעת מחיר - ${quote.quoteNumber}</title>
+<title>הצעת מחיר - ${escHtml(quote.quoteNumber)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   @page { size: A4; margin: 20mm; }
@@ -258,24 +264,24 @@ export default function HomePage() {
 <div class="header">
   <img src="/logo.jpg" class="logo" alt="מנצ׳" onerror="this.style.display='none'" />
   <div class="quote-info">
-    <div class="quote-number">הצעה מס׳ ${quote.quoteNumber}</div>
+    <div class="quote-number">הצעה מס׳ ${escHtml(quote.quoteNumber)}</div>
     <div>תאריך: ${new Date(quote.date).toLocaleDateString("he-IL")}</div>
   </div>
 </div>
 
 <div class="recipient">
-  <strong>לכבוד: ${quote.recipientName} ${quote.recipientLast}</strong><br/>
-  ${quote.recipientCompany}
+  <strong>לכבוד: ${escHtml(quote.recipientName)} ${escHtml(quote.recipientLast)}</strong><br/>
+  ${escHtml(quote.recipientCompany)}
 </div>
 
 <div class="title-section">
-  <h1>${quote.title}</h1>
+  <h1>${escHtml(quote.title)}</h1>
 </div>
 
 <div class="meta">
-  <span><strong>לקוח:</strong> ${selectedClient?.name || ""}</span>
-  ${selectedClient?.brand ? `<span><strong>מותג:</strong> ${selectedClient.brand}</span>` : ""}
-  <span><strong>נושא:</strong> ${quote.subject}</span>
+  <span><strong>לקוח:</strong> ${escHtml(selectedClient?.name || "")}</span>
+  ${selectedClient?.brand ? `<span><strong>מותג:</strong> ${escHtml(selectedClient.brand)}</span>` : ""}
+  <span><strong>נושא:</strong> ${escHtml(quote.subject)}</span>
 </div>
 
 <table>
@@ -292,7 +298,7 @@ export default function HomePage() {
     ${pdfItems.filter(item => item.description).map((item, i) => `
     <tr>
       <td>${i + 1}</td>
-      <td>${item.description}</td>
+      <td>${escHtml(item.description)}</td>
       <td>${item.quantity}</td>
       <td>${Number(item.unitPrice).toLocaleString()} ₪</td>
       <td>${Number(item.total).toLocaleString()} ₪</td>
@@ -308,8 +314,8 @@ export default function HomePage() {
   <h3>הערות</h3>
   <ul>
     <li>המחיר אינו כולל מע״מ</li>
-    <li>תנאי תשלום: ${quote.paymentTerms || "לא צוין"}</li>
-    ${quote.notes ? `<li>${quote.notes}</li>` : ""}
+    <li>תנאי תשלום: ${escHtml(quote.paymentTerms) || "לא צוין"}</li>
+    ${quote.notes ? `<li>${escHtml(quote.notes)}</li>` : ""}
   </ul>
 </div>
 
@@ -317,13 +323,13 @@ export default function HomePage() {
   <div class="sig-block">
     <h4>חתימת השולח</h4>
     ${quote.senderSignature ? `<img src="${quote.senderSignature}" class="sig-image" />` : '<div style="height:80px;border-bottom:1px solid #ccc;margin-bottom:5px;"></div>'}
-    <div class="sig-name">${quote.sender.fullName}</div>
-    <div class="sig-title">${quote.sender.title}</div>
+    <div class="sig-name">${escHtml(quote.sender.fullName)}</div>
+    <div class="sig-title">${escHtml(quote.sender.title)}</div>
   </div>
   <div class="sig-block">
     <h4>חתימת הלקוח</h4>
-    ${quote.clientSignature ? `<img src="${quote.clientSignature}" class="sig-image" />` : '<div style="height:80px;border-bottom:1px solid #ccc;margin-bottom:5px;"></div>'}
-    <div class="sig-name">${quote.recipientName} ${quote.recipientLast}</div>
+    ${quote.clientSignature ? `<img src="${escHtml(quote.clientSignature)}" class="sig-image" />` : '<div style="height:80px;border-bottom:1px solid #ccc;margin-bottom:5px;"></div>'}
+    <div class="sig-name">${escHtml(quote.recipientName)} ${escHtml(quote.recipientLast)}</div>
   </div>
 </div>
 

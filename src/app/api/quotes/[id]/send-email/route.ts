@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-check";
 import { resend, fromEmail, appUrl } from "@/lib/resend";
 import { quoteEmailHtml } from "@/lib/email-templates/quote-email";
+import { sendEmailSchema, parseOrError } from "@/lib/validation";
 
 export async function POST(
   req: Request,
@@ -13,12 +14,16 @@ export async function POST(
 
   const { id } = await params;
   const quoteId = parseInt(id);
-  const body = await req.json();
-  const { to, contactName } = body;
-
-  if (!to) {
-    return NextResponse.json({ error: "לא הוזנה כתובת מייל" }, { status: 400 });
+  if (isNaN(quoteId) || quoteId <= 0) {
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
+
+  const body = await req.json();
+  const parsed = parseOrError(sendEmailSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+  const { to, contactName } = parsed.data;
 
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ error: "שירות המייל לא מוגדר. יש להגדיר RESEND_API_KEY" }, { status: 500 });
@@ -52,7 +57,7 @@ export async function POST(
     });
 
     if (sendError) {
-      return NextResponse.json({ error: sendError.message }, { status: 500 });
+      return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
     }
 
     await prisma.quote.update({
@@ -61,10 +66,7 @@ export async function POST(
     });
 
     return NextResponse.json({ success: true, emailId: data?.id });
-  } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "שגיאה בשליחת מייל" },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ error: "שגיאה בשליחת מייל" }, { status: 500 });
   }
 }

@@ -1,22 +1,23 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-check";
+import { importClientsSchema, parseOrError } from "@/lib/validation";
 
 export async function POST(req: Request) {
   const { error } = await requireAdmin();
   if (error) return error;
 
-  const { clients } = await req.json();
-
-  if (!Array.isArray(clients) || clients.length === 0) {
-    return NextResponse.json({ error: "אין נתונים לייבוא" }, { status: 400 });
+  const body = await req.json();
+  const parsed = parseOrError(importClientsSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
   const created = [];
   const skipped = [];
 
-  for (const c of clients) {
-    const name = (c.name || "").trim();
+  for (const c of parsed.data.clients) {
+    const name = (c.name || "").replace(/<[^>]*>/g, "").trim();
     if (!name) continue;
 
     // Skip if client with same name already exists
@@ -29,8 +30,8 @@ export async function POST(req: Request) {
     const client = await prisma.client.create({
       data: {
         name,
-        brand: (c.brand || "").trim() || null,
-        paymentTerms: (c.paymentTerms || "").trim() || null,
+        brand: (c.brand || "").replace(/<[^>]*>/g, "").trim() || null,
+        paymentTerms: (c.paymentTerms || "").replace(/<[^>]*>/g, "").trim() || null,
       },
     });
     created.push(client);

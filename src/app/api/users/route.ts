@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { createUserSchema, updateUserSchema, parseOrError } from "@/lib/validation";
 
 async function checkAdmin() {
   const session = await auth();
@@ -26,20 +27,25 @@ export async function POST(req: Request) {
   if (!(await checkAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
-  const data = await req.json();
+  const body = await req.json();
+  const parsed = parseOrError(createUserSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+  const data = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { username: data.username } });
   if (existing) {
     return NextResponse.json({ error: "שם משתמש כבר קיים" }, { status: 400 });
   }
 
-  const hashedPassword = await bcrypt.hash(data.password, 12);
+  const hashedPassword = await bcrypt.hash(data.password, 10);
   const user = await prisma.user.create({
     data: {
       username: data.username,
       password: hashedPassword,
       fullName: data.fullName,
-      role: data.role || "USER",
+      role: data.role,
     },
     select: { id: true, username: true, fullName: true, role: true },
   });
@@ -50,16 +56,22 @@ export async function PUT(req: Request) {
   if (!(await checkAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
-  const data = await req.json();
+  const body = await req.json();
+  const parsed = parseOrError(updateUserSchema, body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+  const data = parsed.data;
+
   const updateData: { fullName?: string; role?: string; password?: string } = {
     fullName: data.fullName,
     role: data.role,
   };
-  if (data.password) {
-    updateData.password = await bcrypt.hash(data.password, 12);
+  if (data.password && data.password.length >= 6) {
+    updateData.password = await bcrypt.hash(data.password, 10);
   }
   const user = await prisma.user.update({
-    where: { id: Number(data.id) },
+    where: { id: data.id },
     data: updateData,
     select: { id: true, username: true, fullName: true, role: true },
   });
@@ -71,7 +83,10 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
   const { searchParams } = new URL(req.url);
-  const id = Number(searchParams.get("id"));
+  const id = parseInt(searchParams.get("id") || "");
+  if (isNaN(id) || id <= 0) {
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+  }
   await prisma.user.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
