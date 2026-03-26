@@ -43,6 +43,13 @@ const icons = {
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   ),
+  backup: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  ),
   logout: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
@@ -74,6 +81,7 @@ function Sidebar() {
           { href: "/clients", label: "ניהול לקוחות", icon: icons.users },
           { href: "/senders", label: "ניהול שולחים", icon: icons.send },
           { href: "/users", label: "ניהול משתמשים", icon: icons.shield },
+          { href: "/backup", label: "גיבוי נתונים", icon: icons.backup },
         ]
       : []),
   ];
